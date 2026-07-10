@@ -221,7 +221,7 @@ GEM
     lightgbm (0.4.4)
       ffi
     lint_roller (1.1.0)
-    lockbox (2.1.0)
+    lockbox (2.2.0)
     logger (1.7.0)
     lograge (0.14.0)
       actionpack (>= 4)
