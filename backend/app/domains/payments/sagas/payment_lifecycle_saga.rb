@@ -233,7 +233,7 @@ module Payments
           rescue => e
             Rails.logger.error("COMPENSATION FAILED for #{step}: #{e.message}")
             FailedCompensation.create!(
-              transaction: @transaction,
+              source_transaction: @transaction,
               step: step.to_s,
               compensation: compensation.to_s,
               error: e.message

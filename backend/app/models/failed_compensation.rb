@@ -1,5 +1,5 @@
 class FailedCompensation < ApplicationRecord
-  belongs_to :transaction, class_name: "Transaction"
+  belongs_to :source_transaction, class_name: "Transaction", foreign_key: :transaction_id
 
   STATUSES = %w[pending resolved].freeze
 
