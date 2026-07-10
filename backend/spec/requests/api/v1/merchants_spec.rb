@@ -34,6 +34,36 @@ RSpec.describe "Api::V1::Merchants", type: :request do
     end
   end
 
+  describe "GET /api/v1/merchants/me/analytics sub-endpoints" do
+    before do
+      create(:transaction, merchant: merchant, status: "captured")
+      create(:fraud_case, merchant: merchant)
+    end
+
+    it "returns recent activity including transactions and fraud cases" do
+      get "/api/v1/merchants/me/analytics/recent_activity", headers: admin_headers
+      expect(response).to have_http_status(:ok)
+      types = json_response[:data].map { |a| a[:type] }
+      expect(types).to include("payment_captured")
+      expect(types).to include("fraud_case")
+    end
+
+    it "returns volume data" do
+      get "/api/v1/merchants/me/analytics/volume", headers: admin_headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "returns fraud distribution data" do
+      get "/api/v1/merchants/me/analytics/fraud_distribution", headers: admin_headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "returns payment methods data" do
+      get "/api/v1/merchants/me/analytics/payment_methods", headers: admin_headers
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe "GET /api/v1/merchants/me/balance" do
     it "returns balance data" do
       get "/api/v1/merchants/me/balance", headers: admin_headers

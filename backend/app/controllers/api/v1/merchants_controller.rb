@@ -135,7 +135,7 @@ module Api
           end
 
           # Recent fraud cases
-          ::Fraud::FraudCase.where(merchant_id: @merchant.id).order(created_at: :desc).limit(5).each do |fc|
+          Fraud::Models::FraudCase.where(merchant_id: @merchant.id).order(created_at: :desc).limit(5).each do |fc|
             activities << {
               type: "fraud_case",
               title: "Fraud case opened",
