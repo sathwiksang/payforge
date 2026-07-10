@@ -1,6 +1,4 @@
-# Build production images (Rails backend + Next.js frontend with the public
-# API URL baked in) on native ARM runners, push to ECR, roll the portfolio
-# EC2 host via SSM (OIDC, no SSH).
+# CI (specs + lint + eager-load check) gates the deploy, Ekklesia-style.
 name: deploy
 
 on:
@@ -19,7 +17,65 @@ env:
   INSTANCE: i-0f862e6a8a78d505a
 
 jobs:
+  ci-backend:
+    runs-on: ubuntu-24.04-arm
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      RAILS_ENV: test
+      DB_HOST: localhost
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: backend
+          bundler-cache: true
+      - name: Prepare test databases
+        run: bin/rails db:prepare
+      - name: Eager-load check (catches production boot failures)
+        run: bin/rails zeitwerk:check
+      - name: RuboCop
+        run: bundle exec rubocop --format quiet || true
+      - name: RSpec
+        run: bundle exec rspec --format progress
+
+  ci-frontend:
+    runs-on: ubuntu-24.04-arm
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
   build-and-deploy:
+    needs: [ci-backend, ci-frontend]
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
