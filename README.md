@@ -1,5 +1,15 @@
 # PayForge
 
+## Live & docs
+
+- **Live:** https://payforge.sathwiksangeethamproject.dev · API https://payforge-api.sathwiksangeethamproject.dev (AWS EC2, production builds, CI-gated deploys)
+- Demo login: `admin@payforge.dev` (see runbook for credentials management)
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system overview, links to all 10 ADRs
+- [docs/RUNBOOK.md](docs/RUNBOOK.md) — deploys, SSM host access, failure playbook
+- [docs/SECURITY.md](docs/SECURITY.md) — security posture and uplift backlog
+- [docs/adr/](docs/adr/) — architecture decision records
+
+
 > Production-grade payment processing platform with integrated fraud intelligence.
 > Event-sourced architecture, real-time ML scoring, double-entry ledger, PCI-aware security.
 
