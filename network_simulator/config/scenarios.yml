@@ -1,0 +1,47 @@
+defaults:
+  decline_rate: 0.05
+  timeout_rate: 0.01
+  latency:
+    authorization:
+      min_ms: 50
+      max_ms: 200
+    capture:
+      min_ms: 100
+      max_ms: 500
+    settlement:
+      min_ms: 200
+      max_ms: 1000
+
+test_cards:
+  # Cards ending in these digits have specific behaviors
+  "0001":
+    response: "insufficient_funds"
+    response_code: "51"
+  "0002":
+    response: "declined"
+    response_code: "05"
+  "0003":
+    response: "expired_card"
+    response_code: "54"
+  "9999":
+    response: "timeout"
+    timeout_ms: 5000
+  "4242":
+    response: "approved"
+    response_code: "00"
+  "0000":
+    response: "approved"
+    response_code: "00"
+
+avs_results:
+  - "Y"   # Address and ZIP match
+  - "N"   # No match
+  - "A"   # Address match, ZIP no match
+  - "Z"   # ZIP match, address no match
+  - "U"   # Unavailable
+
+cvv_results:
+  - "M"   # Match
+  - "N"   # No match
+  - "P"   # Not processed
+  - "U"   # Unknown

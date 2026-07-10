@@ -1,0 +1,20 @@
+usage: opensource
+
+integration:
+  name: rspec
+
+includes:
+  - app
+
+requires:
+  - ./config/environment
+
+mutation:
+  timeout: 30.0
+
+matcher:
+  subjects:
+    - "Ledger::Services::DoubleEntryService"
+    - "Payments::Aggregates::PaymentAggregate"
+    - "Fraud::Services::FraudScoringEngine"
+    - "Fraud::Services::RuleEngine"

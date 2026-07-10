@@ -1,0 +1,169 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: payforge
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: payforge_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_SERVE_STATIC_FILES: "false"
+      DATABASE_URL: postgres://payforge:${DB_PASSWORD}@db:5432/payforge_production
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      LOCKBOX_MASTER_KEY: ${LOCKBOX_MASTER_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      ML_SIDECAR_URL: http://ml_sidecar:8000
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  sidekiq:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://payforge:${DB_PASSWORD}@db:5432/payforge_production
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      LOCKBOX_MASTER_KEY: ${LOCKBOX_MASTER_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.payforge.sathwiksangeethamproject.dev
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://api.payforge.sathwiksangeethamproject.dev
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  ml_sidecar:
+    build:
+      context: ./ml_sidecar
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: production
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --config /etc/cloudflared/config.yml run payforge
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

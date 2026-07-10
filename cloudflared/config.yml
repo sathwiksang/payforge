@@ -1,0 +1,9 @@
+tunnel: payforge
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  - hostname: payforge.sathwiksangeethamproject.dev
+    service: http://frontend:3000
+  - hostname: api.payforge.sathwiksangeethamproject.dev
+    service: http://backend:3000
+  - service: http_status:404

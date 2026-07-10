@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+vendor/bundle/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+.next/
+tmp/
+log/
+
+# Secrets
+config/master.key
+config/credentials/*.key
+
+# Docker volumes
+postgres_data/
+redis_data/
