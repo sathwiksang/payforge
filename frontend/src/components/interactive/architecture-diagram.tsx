@@ -179,7 +179,8 @@ export function ArchitectureDiagram() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <div className="relative">
+    <div className="overflow-x-auto">
+    <div className="relative min-w-[480px]">
       {/* SVG connections */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
@@ -312,6 +313,7 @@ export function ArchitectureDiagram() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

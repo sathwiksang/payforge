@@ -55,7 +55,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen bg-white">
       {/* Top bar */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex items-center justify-between px-6 h-16 max-w-[1400px]">
+        <div className="mx-auto flex items-center justify-between px-4 sm:px-6 h-16 max-w-[1400px]">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors">
               <ArrowLeft className="h-4 w-4" />
@@ -72,7 +72,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-mono text-slate-500">
+            <span className="hidden sm:inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-mono text-slate-500">
               v1.0.0
             </span>
             <Link
@@ -85,9 +85,27 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         </div>
       </header>
 
+      {/* Mobile section nav */}
+      <nav className="lg:hidden sticky top-16 z-40 flex gap-1 overflow-x-auto border-b border-slate-200 bg-white/95 px-3 py-2 backdrop-blur-sm">
+        {NAV_SECTIONS.flatMap((s) => s.items).map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+              pathname === item.href
+                ? "bg-indigo-50 text-indigo-700"
+                : "text-slate-600 hover:bg-slate-50"
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
       <div className="mx-auto max-w-[1400px] flex">
         {/* Sidebar */}
-        <aside className="w-64 shrink-0 border-r border-slate-200 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-slate-200 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="p-4">
             {/* Search */}
             <div className="relative mb-5">
@@ -135,7 +153,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         </aside>
 
         {/* Content */}
-        <main className="flex-1 min-w-0 px-12 py-10 max-w-4xl">{children}</main>
+        <main className="flex-1 min-w-0 px-4 py-6 sm:px-8 sm:py-10 lg:px-12 max-w-4xl">{children}</main>
       </div>
     </div>
   );
