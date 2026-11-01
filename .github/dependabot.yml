@@ -8,6 +8,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # RES 3 renames its ActiveRecord adapter (config/initializers/event_store.rb requires
+      # rails_event_store_active_record); remove this when doing that migration.
+      - dependency-name: rails_event_store
+        update-types: [version-update:semver-major]
   - package-ecosystem: npm
     directory: "/frontend"
     schedule:

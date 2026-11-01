@@ -15,7 +15,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # --- Financial Domain ---
-gem "money-rails", "~> 1.15"
+gem "money-rails", "~> 3.0"
 gem "rails_event_store", "~> 2.0"
 gem "aggregate_root"
 
@@ -35,7 +35,7 @@ gem "secure_headers"
 gem "acts_as_tenant"
 gem "paper_trail"
 gem "stoplight"
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.1"
 gem "sidekiq-cron"
 gem "pagy"
 
