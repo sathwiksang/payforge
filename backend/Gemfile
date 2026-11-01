@@ -16,7 +16,7 @@ gem "thruster", require: false
 
 # --- Financial Domain ---
 gem "money-rails", "~> 1.15"
-gem "rails_event_store", "~> 2.0"
+gem "rails_event_store", "~> 3.2"
 gem "aggregate_root"
 
 # --- Authentication & Authorization ---
