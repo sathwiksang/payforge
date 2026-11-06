@@ -704,7 +704,7 @@ GEM
       prism (>= 1.5.1)
     uri (1.1.2)
     useragent (0.16.11)
-    vcr (6.4.0)
+    vcr (6.4.1)
     warden (1.2.9)
       rack (>= 2.0.9)
     warden-jwt_auth (0.12.0)
